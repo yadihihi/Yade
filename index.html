@@ -154,6 +154,42 @@ button:active{transform:translateY(2px);box-shadow:0 1px #29252b}
   to{height:18px;transform:rotate(var(--mr)) scaleY(1.08)}
 }
 
+
+/* VERSION 4 - visible emotions */
+.petBrows{
+  position:absolute;left:50%;bottom:67px;width:180px;height:180px;transform:translateX(-50%);
+  pointer-events:none;z-index:13;
+}
+.petBrows.sleeping{bottom:48px;transform:translateX(-50%) scale(.88) rotate(4deg)}
+.petBrows.hide{display:none}
+.brow{
+  position:absolute;left:var(--bx);top:var(--by);width:var(--bw);height:4px;border-radius:999px;background:#241c23;
+  transform:rotate(var(--br));box-shadow:0 1px 0 rgba(255,255,255,.12)
+}
+.brow2{left:var(--bx2);top:var(--by2);width:var(--bw2);transform:rotate(var(--br2))}
+.petBrows.angry .brow1{transform:rotate(18deg)}
+.petBrows.angry .brow2{transform:rotate(-18deg)}
+.petBrows.sad .brow1{transform:rotate(-18deg)}
+.petBrows.sad .brow2{transform:rotate(18deg)}
+
+.petMouth.happy .mouthHole{
+  background:transparent;border:4px solid #29252b;border-top:none;
+  height:16px; border-radius:0 0 28px 28px; top:calc(var(--my) + 2px);
+}
+.petMouth.happy .mouthHole:after{display:none}
+
+.petMouth.sad .mouthHole{
+  background:transparent;border:4px solid #29252b;border-bottom:none;
+  height:14px; border-radius:28px 28px 0 0; top:calc(var(--my) + 8px);
+}
+.petMouth.sad .mouthHole:after{display:none}
+
+.petMouth.angry .mouthHole{
+  background:transparent;border:none;border-top:4px solid #29252b;
+  height:0; top:calc(var(--my) + 8px); border-radius:0;
+}
+.petMouth.angry .mouthHole:after{display:none}
+
 </style></head>
 <body><main id="app">
 <section id="choose">
@@ -175,7 +211,7 @@ button:active{transform:translateY(2px);box-shadow:0 1px #29252b}
 </div>
 <div class="xp">✨ Fotzigkeitslevel: <b id="xpT"></b></div>
 
-<div class="room" id="room"><div class="skyGlow"></div><div class="window"></div><div class="celestial sunOrb"></div><div class="celestial moonOrb"></div><div class="stars"><span class="star s1">✦</span><span class="star s2">✧</span><span class="star s3">✦</span><span class="star s4">✧</span><span class="star s5">✦</span></div><div class="floor"></div><div class="rug" id="rug"></div><div class="bed" id="bed"></div><img id="pet" class="pet"><div id="eyeOverlay" class="petEyes hide"><span class="eyeLine eye1"></span><span class="eyeLine eye2"></span></div><div id="mouthOverlay" class="petMouth hide"><span class="mouthHole"></span></div></div>
+<div class="room" id="room"><div class="skyGlow"></div><div class="window"></div><div class="celestial sunOrb"></div><div class="celestial moonOrb"></div><div class="stars"><span class="star s1">✦</span><span class="star s2">✧</span><span class="star s3">✦</span><span class="star s4">✧</span><span class="star s5">✦</span></div><div class="floor"></div><div class="rug" id="rug"></div><div class="bed" id="bed"></div><img id="pet" class="pet"><div id="eyeOverlay" class="petEyes hide"><span class="eyeLine eye1"></span><span class="eyeLine eye2"></span></div><div id="browOverlay" class="petBrows hide"><span class="brow brow1"></span><span class="brow brow2"></span></div><div id="mouthOverlay" class="petMouth hide"><span class="mouthHole"></span></div></div>
 <div id="msg" class="msg">Dein Wesen wartet auf dich ♡</div>
 <div class="actions">
 <button style="background:#c9e1b7" onclick="openFood()">🍓 Füttern</button>
@@ -257,10 +293,22 @@ const FACECFG={
 };
 let sleepingEyes=false;
 
+function getMood(){
+  if(!s) return "neutral";
+  if([s.love,s.food,s.clean,s.energy].every(v=>v>=95)) return "happy";
+  const vals={love:s.love,food:s.food,clean:s.clean,energy:s.energy};
+  const minKey=Object.keys(vals).reduce((a,b)=>vals[a]<=vals[b]?a:b);
+  if(vals[minKey] <= 25){
+    return (minKey==="food" || minKey==="clean") ? "angry" : "sad";
+  }
+  return "neutral";
+}
+
+
 function applyFaceOverlay(){
   if(!s || !$("eyeOverlay") || !$("mouthOverlay")) return;
   const c=FACECFG[s.name]||FACECFG.kiki;
-  const eyes=$("eyeOverlay"), mouth=$("mouthOverlay");
+  const eyes=$("eyeOverlay"), mouth=$("mouthOverlay"), brows=$("browOverlay");
   eyes.style.setProperty("--x", c.e1[0]+"px");
   eyes.style.setProperty("--y", c.e1[1]+"px");
   eyes.style.setProperty("--w", c.e1[2]+"px");
@@ -269,25 +317,47 @@ function applyFaceOverlay(){
   eyes.style.setProperty("--y2", c.e2[1]+"px");
   eyes.style.setProperty("--w2", c.e2[2]+"px");
   eyes.style.setProperty("--r2", c.e2[3]);
+
+  if(brows){
+    brows.style.setProperty("--bx", Math.max(c.e1[0]-2,0)+"px");
+    brows.style.setProperty("--by", Math.max(c.e1[1]-16,0)+"px");
+    brows.style.setProperty("--bw", c.e1[2]+"px");
+    brows.style.setProperty("--br", "0deg");
+    brows.style.setProperty("--bx2", Math.max(c.e2[0]-2,0)+"px");
+    brows.style.setProperty("--by2", Math.max(c.e2[1]-16,0)+"px");
+    brows.style.setProperty("--bw2", c.e2[2]+"px");
+    brows.style.setProperty("--br2", "0deg");
+  }
+
   mouth.style.setProperty("--mx", c.m[0]+"px");
   mouth.style.setProperty("--my", c.m[1]+"px");
   mouth.style.setProperty("--mw", c.m[2]+"px");
   mouth.style.setProperty("--mh", c.m[3]+"px");
   mouth.style.setProperty("--mr", c.m[4]);
+
   eyes.classList.toggle("sleeping", $("pet").classList.contains("sleeping"));
   mouth.classList.toggle("sleeping", $("pet").classList.contains("sleeping"));
+  if(brows) brows.classList.toggle("sleeping", $("pet").classList.contains("sleeping"));
 }
 function hideFaceOverlays(){
-  if($("eyeOverlay")){$("eyeOverlay").classList.add("hide");$("eyeOverlay").classList.remove("blink","closed")}
-  if($("mouthOverlay")){$("mouthOverlay").classList.add("hide");$("mouthOverlay").classList.remove("chewing")}
+  if($("eyeOverlay")){$("eyeOverlay").className="petEyes hide"}
+  if($("browOverlay")){$("browOverlay").className="petBrows hide"}
+  if($("mouthOverlay")){$("mouthOverlay").className="petMouth hide"}
 }
 function setClosedEyes(on){
   if(!$("eyeOverlay")) return;
   applyFaceOverlay();
   sleepingEyes=on;
-  const e=$("eyeOverlay");
-  if(on){e.classList.remove("hide","blink");e.classList.add("closed")}
-  else{e.classList.remove("closed","blink");e.classList.add("hide")}
+  const e=$("eyeOverlay"), b=$("browOverlay"), m=$("mouthOverlay");
+  if(on){
+    e.className="petEyes closed";
+    if($("pet").classList.contains("sleeping")) e.classList.add("sleeping");
+    if(b) b.className="petBrows hide";
+    if(m) m.className="petMouth hide";
+  }else{
+    e.className="petEyes hide";
+    applyEmotionFace();
+  }
 }
 function blinkEyes(times=1){
   if(!$("eyeOverlay")) return;
@@ -304,13 +374,40 @@ function blinkEyes(times=1){
   };
   once();
 }
+
+function applyEmotionFace(){
+  if(!s) return;
+  applyFaceOverlay();
+  const mood=getMood();
+  const brows=$("browOverlay"), mouth=$("mouthOverlay");
+  if(!brows || !mouth) return;
+  if(sleepingEyes || $("pet").classList.contains("sleeping")){
+    brows.className="petBrows hide";
+    mouth.className="petMouth hide";
+    return;
+  }
+  if(mood==="neutral"){
+    brows.className="petBrows hide";
+    mouth.className="petMouth hide";
+    return;
+  }
+  mouth.className="petMouth "+mood;
+  if(mood==="happy"){
+    brows.className="petBrows hide";
+  }else{
+    brows.className="petBrows "+mood;
+  }
+}
 function chewMouth(){
   if(!$("mouthOverlay")) return;
   applyFaceOverlay();
   const m=$("mouthOverlay");
-  m.classList.remove("hide");m.classList.add("chewing");
+  m.className="petMouth chewing";
   blinkEyes(1);
-  setTimeout(()=>{m.classList.remove("chewing");if(!sleepingEyes)m.classList.add("hide")},1450);
+  setTimeout(()=>{
+    m.classList.remove("chewing");
+    applyEmotionFace();
+  },1450);
 }
 
 let s=JSON.parse(localStorage.getItem("pipikakalandSave")||"null");
@@ -355,7 +452,7 @@ function render(){
   if(s.energy<15 && !oldZ){let z=document.createElement("div");z.id="sleepyZ";z.className="sleepyZ";z.textContent="z z z…";room.appendChild(z)}
   else if(s.energy>=15 && oldZ){oldZ.remove()}
   applyFaceOverlay();
-  if(!sleepingEyes){hideFaceOverlays();}
+  if(sleepingEyes){setClosedEyes(true)} else {applyEmotionFace()}
   save()
 }
 function save(){if(s){storeActivePet();localStorage.setItem("pipikakalandSave",JSON.stringify(s))}}
