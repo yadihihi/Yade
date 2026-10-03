@@ -54,6 +54,35 @@ button:active{transform:translateY(2px);box-shadow:0 1px #29252b}
 @keyframes flash{50%{filter:brightness(4) drop-shadow(0 0 20px white)}}
 .evoText{font-size:21px;font-weight:800;min-height:60px;display:flex;align-items:center;justify-content:center}
 .evoBtn{width:100%;margin-top:12px;background:#f4b3d0}
+
+.skyGlow{position:absolute;inset:0 0 auto 0;height:64%;background:linear-gradient(#bfe4f7,#f8ddbd00);transition:background 1.2s ease;pointer-events:none}
+.room.night .skyGlow{background:linear-gradient(#35406f,#7e6c9a00)}
+.celestial{position:absolute;right:34px;top:42px;width:54px;height:54px;border-radius:50%;z-index:2;transition:all 1.2s ease}
+.sunOrb{background:#f6d94a;border:2px solid #29252b;box-shadow:0 0 0 8px #f6d94a33}
+.moonOrb{background:#f2efd4;border:2px solid #29252b;box-shadow:0 0 0 8px #d5d6ff22;opacity:0;transform:translateY(-90px)}
+.room.night .sunOrb{opacity:0;transform:translateY(120px)}
+.room.night .moonOrb{opacity:1;transform:translateY(0)}
+.stars{position:absolute;inset:0;z-index:1;opacity:0;transition:opacity 1.1s;pointer-events:none;font-size:21px}
+.room.night .stars{opacity:1}.star{position:absolute}.s1{left:35px;top:38px}.s2{left:108px;top:72px}.s3{left:180px;top:28px}.s4{right:125px;top:96px}.s5{left:72px;top:126px}
+.room.sleepy .pet{animation:sleepySway 1.8s ease-in-out infinite}
+@keyframes sleepySway{0%,100%{transform:translateX(-50%) rotate(-1deg)}50%{transform:translateX(-50%) rotate(2deg) translateY(4px)}}
+.sleepyZ{position:absolute;right:92px;bottom:210px;z-index:7;font-size:22px;animation:zzz 2s infinite}
+.chewStrong{animation:chewStrong .16s 7}
+@keyframes chewStrong{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06,.90) rotate(-1deg)}}
+.reactionPop{position:absolute;left:50%;bottom:250px;transform:translateX(-50%);font-size:36px;z-index:10;animation:pop .9s forwards}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,10px) scale(.5)}45%{opacity:1;transform:translate(-50%,-8px) scale(1.2)}100%{opacity:0;transform:translate(-50%,-35px) scale(.9)}}
+.toy{position:absolute;z-index:9;font-size:45px;left:50%;bottom:110px;transform:translateX(-50%)}
+.toy.ball{animation:ballPlay 1.8s ease-in-out}@keyframes ballPlay{0%{left:25%;bottom:95px}30%{left:65%;bottom:170px}60%{left:35%;bottom:115px}100%{left:70%;bottom:95px}}
+.toy.feather{animation:featherPlay 1.8s ease-in-out}@keyframes featherPlay{0%{left:25%;bottom:205px;transform:rotate(-20deg)}50%{left:70%;bottom:150px;transform:rotate(30deg)}100%{left:35%;bottom:215px;transform:rotate(-25deg)}}
+.toy.mirror{animation:mirrorPlay 1.8s ease-in-out}@keyframes mirrorPlay{0%,100%{left:68%;bottom:105px;transform:scale(.9)}50%{left:68%;bottom:125px;transform:scale(1.08)}}
+.toy.plush{animation:plushPlay 1.8s ease-in-out}@keyframes plushPlay{0%{left:30%;bottom:110px}50%{left:52%;bottom:140px}100%{left:30%;bottom:110px}}
+.toy.squeak{animation:squeakPlay .35s 5 alternate}@keyframes squeakPlay{from{left:38%;bottom:105px;transform:rotate(-10deg)}to{left:62%;bottom:130px;transform:rotate(12deg)}}
+.toy.bubble{animation:bubblePlay 1.8s ease-in-out}@keyframes bubblePlay{0%{left:45%;bottom:70px;opacity:.3}50%{left:55%;bottom:200px;opacity:1}100%{left:40%;bottom:280px;opacity:0}}
+.pet.playJump{animation:playJump .32s 5 alternate}@keyframes playJump{from{transform:translateX(-50%) translateY(0) rotate(-2deg)}to{transform:translateX(-50%) translateY(-20px) rotate(3deg)}}
+.pet.playChase{animation:playChase 1.8s ease-in-out}@keyframes playChase{0%{left:48%}35%{left:60%}70%{left:40%}100%{left:50%}}
+.pet.playSpin{animation:playSpin .55s 3}@keyframes playSpin{to{transform:translateX(-50%) rotate(360deg)}}
+.pet.playCuddle{animation:playCuddle .6s 3 alternate}@keyframes playCuddle{to{transform:translateX(-50%) scale(1.08) rotate(2deg)}}
+
 </style></head>
 <body><main id="app">
 <section id="choose">
@@ -75,7 +104,7 @@ button:active{transform:translateY(2px);box-shadow:0 1px #29252b}
 </div>
 <div class="xp">✨ Fotzigkeitslevel: <b id="xpT"></b></div>
 
-<div class="room" id="room"><div class="window"></div><div class="floor"></div><div class="rug"></div><div class="bed" id="bed"></div><img id="pet" class="pet"></div>
+<div class="room" id="room"><div class="skyGlow"></div><div class="window"></div><div class="celestial sunOrb"></div><div class="celestial moonOrb"></div><div class="stars"><span class="star s1">✦</span><span class="star s2">✧</span><span class="star s3">✦</span><span class="star s4">✧</span><span class="star s5">✦</span></div><div class="floor"></div><div class="rug" id="rug"></div><div class="bed" id="bed"></div><img id="pet" class="pet"></div>
 <div id="msg" class="msg">Dein Wesen wartet auf dich ♡</div>
 <div class="actions">
 <button style="background:#c9e1b7" onclick="openFood()">🍓 Füttern</button>
@@ -113,19 +142,46 @@ function buildEggs(){Object.keys(COLORS).forEach(n=>{let w=document.createElemen
 function choose(n){$("choose").classList.add("hide");$("hatch").classList.remove("hide");$("hatchEgg").style.background=COLORS[n];$("hatchEgg").style.animation="shake .5s infinite";setTimeout(()=>{s={name:n,love:80,food:80,clean:80,energy:80,xp:0,coins:0,glam:false,last:Date.now()};save();showGame()},1800)}
 function showGame(){$("choose").classList.add("hide");$("hatch").classList.add("hide");$("game").classList.remove("hide");decay();render()}
 function decay(){if(!s)return;let m=(Date.now()-s.last)/60000;let p=P[s.name];s.food=clamp(s.food-m*(s.name==="gloob"?.52:.35));s.clean=clamp(s.clean-m*p.clean);s.energy=clamp(s.energy-m*p.sleep);s.love=clamp(s.love-m*(s.name==="bibi"?.25:.12));s.last=Date.now();save()}
-function render(){["love","food","clean","energy"].forEach(k=>{$ (k).style.width=s[k]+"%";$(k+"T").textContent=Math.round(s[k])});$("petname").textContent="♡ "+s.name.toUpperCase()+" ♡";$("persona").textContent=P[s.name].trait;$("coins").textContent=s.coins;$("xpT").textContent=s.glam?"OBERFOTZIG ✨":Math.floor(s.xp)+" / 20";$("pet").src=ASSETS[s.name][s.glam?"glam":"base"];save()}
+function render(){
+  ["love","food","clean","energy"].forEach(k=>{$(k).style.width=s[k]+"%";$(k+"T").textContent=Math.round(s[k])});
+  $("petname").textContent="♡ "+s.name.toUpperCase()+" ♡"; $("persona").textContent=P[s.name].trait; $("coins").textContent=s.coins;
+  $("xpT").textContent=s.glam?"OBERFOTZIG ✨":Math.floor(s.xp)+" / 20"; $("pet").src=ASSETS[s.name][s.glam?"glam":"base"];
+  const room=$("room"); room.classList.toggle("night",s.energy<30); room.classList.toggle("sleepy",s.energy<40);
+  let oldZ=document.getElementById("sleepyZ");
+  if(s.energy<15 && !oldZ){let z=document.createElement("div");z.id="sleepyZ";z.className="sleepyZ";z.textContent="z z z…";room.appendChild(z)}
+  else if(s.energy>=15 && oldZ){oldZ.remove()}
+  save()
+}
 function save(){if(s)localStorage.setItem("pipikakalandSave",JSON.stringify(s))}
 
 function openFood(){$("modalTitle").textContent="Was möchtest du füttern?";$("choices").innerHTML="";Object.entries(FOODS).forEach(([k,v])=>{let b=document.createElement("button");b.className="choice";b.textContent=v.emoji+" "+v.name;b.onclick=()=>feed(k);$("choices").appendChild(b)});$("modal").classList.remove("hide")}
 function feed(k){closeModal();decay();let p=P[s.name], amount=15, love=0, msg="Ganz okay.";if(k===p.fav){amount=27;love=6;msg="😍 Lieblingsfutter!"}else if(k===p.hate){amount=4;love=-6;msg="🤢 Das hasst "+s.name.toUpperCase()+"!"}s.food=clamp(s.food+amount);s.love=clamp(s.love+love);s.xp+=k===p.fav?3:1;s.coins+=1;foodAnim(FOODS[k].emoji,msg);levelCheck();render()}
-function foodAnim(emoji,msg){let f=document.createElement("div");f.className="foodfloat";f.textContent=emoji;$("room").appendChild(f);$("pet").classList.add("chew");setTimeout(()=>{$("pet").classList.remove("chew");f.remove();$("msg").textContent=msg},1000)}
+function foodAnim(emoji,msg){
+  let f=document.createElement("div");f.className="foodfloat";f.textContent=emoji;$("room").appendChild(f);
+  setTimeout(()=>{$("pet").classList.add("chewStrong")},400);
+  setTimeout(()=>{$("pet").classList.remove("chewStrong");f.remove();$("msg").textContent=msg;
+    let r=document.createElement("div");r.className="reactionPop";r.textContent=msg.includes("Lieblings")?"😍":msg.includes("hasst")?"🤢":"😋";$("room").appendChild(r);setTimeout(()=>r.remove(),950)
+  },1350)
+}
 
 function openPlay(){$("modalTitle").textContent="Womit soll gespielt werden?";$("choices").innerHTML="";Object.entries(TOYS).forEach(([k,v])=>{let b=document.createElement("button");b.className="choice";b.textContent=v.emoji+" "+v.name;b.onclick=()=>playWith(k);$("choices").appendChild(b)});$("modal").classList.remove("hide")}
-function playWith(k){closeModal();decay();let fav=P[s.name].play;if(k===fav){s.love=clamp(s.love+24);s.xp+=3;$("msg").textContent="💖 Lieblingsspielzeug!"}else{s.love=clamp(s.love+12);s.xp+=1;$("msg").textContent="Ganz nett 😌"}s.energy=clamp(s.energy-4);s.coins+=2;$("pet").classList.add("bounce");setTimeout(()=>$("pet").classList.remove("bounce"),420);levelCheck();render()}
+function playWith(k){
+  closeModal();decay();let fav=P[s.name].play;
+  if(k===fav){s.love=clamp(s.love+24);s.xp+=3;$("msg").textContent="💖 Lieblingsspielzeug!"}
+  else{s.love=clamp(s.love+12);s.xp+=1;$("msg").textContent="Ganz nett 😌"}
+  s.energy=clamp(s.energy-4);s.coins+=2;
+  let toy=document.createElement("div");toy.className="toy "+k;toy.textContent=TOYS[k].emoji;$("room").appendChild(toy);
+  const pet=$("pet");const anim={ball:"playChase",feather:"playChase",mirror:"playSpin",plush:"playCuddle",squeak:"playJump",bubble:"playJump"}[k]||"playJump";pet.classList.add(anim);
+  setTimeout(()=>{toy.remove();pet.classList.remove(anim);levelCheck();render()},1900)
+}
 
 function wash(){decay();let sh=document.createElement("div");sh.className="shower";sh.textContent="🚿";let bb=document.createElement("div");bb.className="bubbles";bb.textContent="🫧 🫧 🫧\n🫧 🫧";$("room").append(sh,bb);$("msg").textContent="Duschen…";setTimeout(()=>{s.clean=clamp(s.clean+35);s.xp+=2;s.coins+=1;sh.remove();bb.remove();$("msg").textContent="✨ Blitzsauber!";levelCheck();render()},2000)}
 
-function sleepPet(){decay();$("bed").style.display="block";$("rug").style.display="none";$("pet").classList.add("sleeping");let dark=document.createElement("div");dark.className="overlay";let z=document.createElement("div");z.className="zzz";z.textContent="Z z z";$("room").append(dark,z);$("msg").textContent="Schlaf gut…";setTimeout(()=>{s.energy=clamp(s.energy+38);s.xp+=2;$("pet").classList.remove("sleeping");$("bed").style.display="none";$("rug").style.display="block";dark.remove();z.remove();$("msg").textContent="🌙 Ausgeschlafen!";levelCheck();render()},3500)}
+function sleepPet(){
+  decay();const room=$("room");room.classList.add("night");$("bed").style.display="block";$("rug").style.display="none";$("pet").classList.add("sleeping");
+  let dark=document.createElement("div");dark.className="overlay";let z=document.createElement("div");z.className="zzz";z.textContent="Z z z";room.append(dark,z);$("msg").textContent="Schlaf gut…";
+  setTimeout(()=>{s.energy=clamp(s.energy+38);s.xp+=2;$("pet").classList.remove("sleeping");$("bed").style.display="none";$("rug").style.display="block";dark.remove();z.remove();$("msg").textContent="🌙 Ausgeschlafen!";levelCheck();render()},3500)
+}
 
 
 function levelCheck(){
