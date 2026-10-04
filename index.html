@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n<meta http-equiv="Pragma" content="no-cache">\n<meta http-equiv="Expires" content="0">
-<title>Pipikakaland transparent states v3</title>
+<title>Pipikakaland V4 transparent</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f4eee5;color:#29252b;font-family:"Chalkboard SE","Comic Sans MS",system-ui,sans-serif}
 #app{max-width:440px;min-height:100vh;margin:auto;background:#fffaf2;padding:16px}
@@ -219,8 +219,16 @@ button:active{transform:translateY(2px);box-shadow:0 1px #29252b}
   pointer-events:none
 }
 
+
+.deployMarker{
+ position:fixed;right:8px;top:8px;z-index:99999;
+ background:#ff4f8f;color:white;border:2px solid #29252b;
+ border-radius:12px;padding:5px 8px;font:800 11px/1 sans-serif;
+ box-shadow:0 2px #29252b;
+}
+
 </style></head>
-<body><main id="app">
+<body><div class="deployMarker">NEUE VERSION V4</div><main id="app">
 <section id="choose">
 <h1>✨ Pipikakaland ✨</h1><p>Wähle dein Ei</p><div class="eggs" id="eggs"></div>
 </section>
